@@ -1,0 +1,32 @@
+---
+- hosts: aws_ec2
+  become: yes
+  connection: ssh
+  user: ec2-user
+
+  vars:
+    ansible_ssh_private_key_file: "/etc/ansible/march-kp.pem"
+    ansible_ssh_user: "ec2-user"
+
+  tasks:
+    - name: install web server
+      yum: name=httpd state=present
+
+    - name: start webserver
+      service: name=httpd state=started
+
+    - name: install git
+      yum: name=git state=present
+
+    - name: Delete existing directory
+      file:
+        path: /var/www/
+        state: absent
+
+
+    - name: get the source code from github
+      git:
+        repo: "https://github.com/devops0014/staticsite-docker.git"
+        dest: /var/www/
+        update: yes
+        version: master
